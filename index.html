@@ -1,0 +1,656 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Nodemailer by andris9</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>Nodemailer</h1>
+        <p>Easy to use module to send e-mails with Node.JS</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/andris9/Nodemailer" class="button fork"><strong>Fork On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/andris9/Nodemailer/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/andris9/Nodemailer/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <h1>Nodemailer</h1>
+
+<p><strong>Nodemailer</strong> is an easy to use module to send e-mails with Node.JS (using 
+SMTP or sendmail or Amazon SES) and is unicode friendly - You can use any characters you like ✔</p>
+
+<p>Nodemailer is Windows friendly, you can install it with <em>npm</em> on Windows just like any other module, there are no compiled dependencies. Use it from Azure or from your Windows box hassle free.</p>
+
+<h2>Nodemailer supports</h2>
+
+<ul>
+<li>
+<strong>Unicode</strong> to use any characters</li>
+<li>
+<strong>HTML content</strong> as well as <strong>plain text</strong> alternative</li>
+<li>
+<strong>Attachments</strong> (including attachment <strong>streaming</strong> for sending larger files)</li>
+<li>
+<strong>Embedded images</strong> in HTML</li>
+<li>
+<strong>SSL/STARTTLS</strong> for secure e-mail delivery</li>
+<li>Different transport methods - <strong>SMTP</strong>, <strong>sendmail</strong> and <strong>Amazon SES</strong>
+</li>
+<li>SMTP <strong>Connection pool</strong> and connection reuse for rapid delivery</li>
+<li>
+<strong>Preconfigured</strong> services for using SMTP with Gmail, Hotmail etc.</li>
+<li>Use objects as header values for <strong>SendGrid</strong> SMTP API</li>
+<li>
+<strong>XOAUTH</strong> authentication support and token generation (3-legged OAuth) - useful with Gmail</li>
+<li>
+<strong>DKIM</strong> signing</li>
+</ul><h2>Example</h2>
+
+<p>This is a complete example to send an e-mail with plaintext and HTML body</p>
+
+<pre><code>var nodemailer = require("nodemailer");
+
+// create reusable transport method (opens pool of SMTP connections)
+var smtpTransport = nodemailer.createTransport("SMTP",{
+    service: "Gmail",
+    auth: {
+        user: "gmail.user@gmail.com",
+        pass: "userpass"
+    }
+});
+
+// setup e-mail data with unicode symbols
+var mailOptions = {
+    from: "Sender Name ✔ &lt;sender@example.com&gt;", // sender address
+    to: "receiver1@example.com, receiver2@example.com", // list of receivers
+    subject: "Hello ✔", // Subject line
+    text: "Hello world ✔", // plaintext body
+    html: "&lt;b&gt;Hello world ✔&lt;/b&gt;" // html body
+}
+
+// send mail with defined transport object
+smtpTransport.sendMail(mailOptions, function(error, response){
+    if(error){
+        console.log(error);
+    }else{
+        console.log("Message sent: " + response.message);
+    }
+    smtpTransport.close(); // shut down the connection pool, no more messages
+});
+</code></pre>
+
+<p>See also the <a href="https://github.com/andris9/Nodemailer/tree/master/examples">examples folder</a> 
+for full featured examples</p>
+
+<h2>Installation</h2>
+
+<p>Install through NPM</p>
+
+<pre><code>npm install nodemailer
+</code></pre>
+
+<h2>Usage</h2>
+
+<p>Include the module</p>
+
+<pre><code>var nodemailer = require("nodemailer");
+</code></pre>
+
+<p>An e-mail can be sent with <code>sendMail(mailOptions[, callback])</code> command</p>
+
+<pre><code>transport.sendMail(mailOptions, callback);
+</code></pre>
+
+<p>Where</p>
+
+<ul>
+<li>
+<code>transport</code> is a transport method defined with <code>nodemailer.createTransport</code>
+</li>
+<li>
+<strong>mailOptions</strong> defines the e-mail (set its subject, body text, receivers etc.), see <strong>E-mail Message Fields</strong> for details</li>
+<li>
+<strong>callback</strong> is the callback function that will be run after the e-mail is sent or the sending failed (see <strong>Return callback</strong> for details)</li>
+</ul><h2>Setting up a transport method</h2>
+
+<p>Before you can send any e-mails you need to set up a transport method. This can
+be done with <code>nodemailer.createTransport(type, options)</code> where <code>type</code> indicates
+the transport protocol and <code>options</code> defines how it is used.</p>
+
+<pre><code>var transport = nodemailer.createTransport("SMTP", {smtp_options});
+</code></pre>
+
+<p>The same transport object can and should be reused several times.</p>
+
+<p>When the transport method is defined, it can be used to send e-mail with <code>sendMail</code></p>
+
+<pre><code>var transport = nodemailer.createTransport("SMTP", {smtp_options});
+
+transport.sendMail({
+    from: "sender@tr.ee",
+    to: "receiver@tr.ee"
+    ...
+});
+</code></pre>
+
+<h3>Possible transport methods</h3>
+
+<p>Required <code>type</code> parameter can be one of the following:</p>
+
+<ul>
+<li>
+<strong>SMTP</strong> for using SMTP</li>
+<li>
+<strong>SES</strong> for using Amazon SES</li>
+<li>
+<strong>Sendmail</strong> for utilizing systems <em>sendmail</em> command</li>
+</ul><h3>Setting up SMTP</h3>
+
+<p>SMTP is different from the other transport mechanisms, as in its case a connection
+pool is created. All the connections try to stay alive as long as possible and 
+are reusable to minimize the protocol overhead delay - for example setting up
+TLS for authenticating is relatively lengthy process (in CPU terms, not by human
+terms), you do not want to do it several times.</p>
+
+<p>Possible SMTP options are the following:</p>
+
+<ul>
+<li>
+<strong>service</strong> - an optional well known service identifier ("Gmail", "Hotmail" etc., see <strong>Well known Services</strong> for a list of supported services) to auto-configure host, port and secure connection settings</li>
+<li>
+<strong>host</strong> - hostname of the SMTP server (defaults to "localhost", not needed with <code>service</code>)</li>
+<li>
+<strong>port</strong> - port of the SMTP server (defaults to 25, not needed with <code>service</code>)</li>
+<li>
+<strong>secureConnection</strong> - use SSL (default is <code>false</code>, not needed with <code>service</code>). If you're using port 587 then keep <code>secureConnection</code> false, since the connection is started in insecure plain text mode and only later upgraded with STARTTLS<br>
+</li>
+<li>
+<strong>name</strong> - the name of the client server (defaults to machine name)</li>
+<li>
+<strong>auth</strong> - authentication object as <code>{user:"...", pass:"..."}</code> or  <code>{XOAuthToken: "base64data"}</code>
+</li>
+<li>
+<strong>ignoreTLS</strong> - ignore server support for STARTTLS (defaults to <code>false</code>)</li>
+<li>
+<strong>debug</strong> - output client and server messages to console</li>
+<li>
+<strong>maxConnections</strong> - how many connections to keep in the pool (defaults to 5)</li>
+</ul><p>Example:</p>
+
+<pre><code>var transport = nodemailer.createTransport("SMTP", {
+    service: "Gmail",
+    auth: {
+        user: "gmail.user@gmail.com",
+        pass: "userpass"
+    }
+});
+</code></pre>
+
+<p>or the same without <code>service</code> parameter</p>
+
+<pre><code>var transport = nodemailer.createTransport("SMTP", {
+    host: "smtp.gmail.com", // hostname
+    secureConnection: true, // use SSL
+    port: 465, // port for secure SMTP
+    auth: {
+        user: "gmail.user@gmail.com",
+        pass: "userpass"
+    }
+});
+</code></pre>
+
+<p><strong>NB!</strong> if you want to close the pool (cancel all open connections) you can use
+<code>transport.close()</code></p>
+
+<pre><code>var transport = nodemailer.createTransport("SMTP",{});
+...
+transport.close(); // close the pool 
+</code></pre>
+
+<h4>SMTP XOAUTH and token generation</h4>
+
+<p><strong>nodemailer</strong> supports XOAUTH authentication for SMTP. To use this, include
+<code>XOAuthToken</code> option in <code>auth</code> instead of the regular <code>user</code> and <code>pass</code>.</p>
+
+<pre><code>var transportOptions = {
+    ...,
+    auth: {
+        XOAuthToken: "R0VUIGh0dHBzOi8vbWFpbC5nb29...."
+    }
+}
+</code></pre>
+
+<p><strong>nodemailer</strong> includes also built in XOAUTH token generator which can be used 
+with <code>nodemailer.createXOAuthGenerator()</code>. The function is preconfigured for
+Gmail, so in this case only mandatory options are <code>user</code>, <code>token</code> and <code>tokenSecret</code>.</p>
+
+<pre><code>var XOAuthTokenGenerator = nodemailer.createXOAuthGenerator({
+        user: "test.nodemailer@gmail.com",
+        // requestUrl: "<a href="https://oauth.access.point">https://oauth.access.point</a>",
+        // consumerKey: "anonymous",
+        // consumerSecret: "anonymous",
+        token: "1/O_HgoO4h2uOUfpus0V--7mygICXrQQ0ZajB3ZH52KqM",
+        tokenSecret: "_mUBkIwNPnfQBUIWrJrpXJ0c"
+    });
+</code></pre>
+
+<p>One of <code>user</code> or <code>requestUrl</code> is mandatory. <code>consumerKey</code> and <code>consumerSecret</code> both
+default to <code>"anonymous"</code>.</p>
+
+<pre><code>var transportOptions = {
+    service: "Gmail",
+    auth: {
+        XOAuthToken: nodemailer.createXOAuthGenerator({
+            user: "test.nodemailer@gmail.com",
+            token: "1/O_HgoO4h2uOUfpus0V--7mygICXrQQ0ZajB3ZH52KqM",
+            tokenSecret: "_mUBkIwNPnfQBUIWrJrpXJ0c"
+        });
+    }
+}
+</code></pre>
+
+<h3>Setting up SES</h3>
+
+<p>SES is actually a HTTP based protocol, the compiled e-mail and related info 
+(signatures and such) are sent as a HTTP request to SES servers.</p>
+
+<p>Possible SES options are the following:</p>
+
+<ul>
+<li>
+<strong>AWSAccessKeyID</strong> - AWS access key (required)</li>
+<li>
+<strong>AWSSecretKey</strong> - AWS secret (required)</li>
+<li>
+<strong>ServiceUrl</strong> - optional API end point URL (defaults to <em>"<a href="https://email.us-east-1.amazonaws.com">https://email.us-east-1.amazonaws.com</a>"</em>)</li>
+</ul><p>Example:</p>
+
+<pre><code>var transport = nodemailer.createTransport("SES", {
+    AWSAccessKeyID: "AWSACCESSKEY",
+    AWSSecretKey: "AWS/Secret/key"
+});
+</code></pre>
+
+<h3>Setting up Sendmail</h3>
+
+<p>Sendmail transport method streams the compiled message to the <em>stdin</em> of <em>sendmail</em>
+command.</p>
+
+<p>Configuration is really easy, the options parameter is optional but you can
+use it to define the path to the <em>sendmail</em> command</p>
+
+<pre><code>var transport = nodemailer.createTransport("Sendmail", "/usr/bin/sendmail");
+</code></pre>
+
+<h3>DKIM Signing</h3>
+
+<p><strong>Nodemailer</strong> supports DKIM signing with very simple setup. Use this with caution 
+though since the generated message needs to be buffered entirely before it can be
+signed. Not a big deal with small messages but might consume a lot of RAM when 
+using larger attachments.</p>
+
+<p>Set up the DKIM signing with <code>useDKIM</code> method for a transport object:</p>
+
+<pre><code>transport.useDKIM(dkimOptions)
+</code></pre>
+
+<p>Where <code>dkimOptions</code> includes necessary options for signing</p>
+
+<ul>
+<li>
+<strong>domainName</strong> - the domainname that is being used for signing</li>
+<li>
+<strong>keySelector</strong> - key selector. If you have set up a TXT record with DKIM public key at <em>zzz._domainkey.example.com</em> then <code>zzz</code> is the selector</li>
+<li>
+<strong>privateKey</strong> - DKIM private key that is used for signing as a string</li>
+<li>
+<strong>headerFieldNames</strong> - optional colon separated list of header fields to sign, by default all fields suggested by RFC4871 #5.5 are used</li>
+</ul><p>All messages transmitted through this transport objects are from now on DKIM signed.</p>
+
+<p>Currently if several header fields with the same name exists, only the last one (the one in the bottom) is signed.</p>
+
+<p>Example:</p>
+
+<pre><code>var transport = nodemailer.createTransport("Sendmail");
+
+transport.useDKIM({
+    domainName: "node.ee",
+    keySelector: "dkim",
+    privateKey: fs.readFileSync("private_key.pem")
+});
+
+transport.sendMail(mailOptions);
+</code></pre>
+
+<p>See examples/example_dkim.js for a complete example.</p>
+
+<p><strong>NB!</strong> Be careful when using services like Gmail, SES etc. through SMTP 
+(SES API is handled by Nodemailer automatically) - these tend to modify some 
+headers like Message-Id or Date which invalidates the signature. In this case use
+<code>headerFieldNames</code> property to define only fields that won't be changed and leave
+out <code>Date</code> or any other unsupported field.</p>
+
+<h3>Well known services for SMTP</h3>
+
+<p>If you want to use a well known service as the SMTP host, you do not need
+to enter the hostname or port number, just use the <code>service</code> parameter (<strong>NB!</strong> case sensitive).</p>
+
+<p>Currently cupported services are: </p>
+
+<ul>
+<li>
+<strong>"Gmail"</strong> for Google Mail</li>
+<li>
+<strong>"hot.ee"</strong> for <a href="http://www.hot.ee">www.hot.ee</a></li>
+<li>
+<strong>"Hotmail"</strong> for Microsoft Live Hotmail</li>
+<li>
+<strong>"iCloud"</strong> for Apple iCloud</li>
+<li>
+<strong>"mail.ee"</strong> for <a href="http://www.mail.ee">www.mail.ee</a></li>
+<li>
+<strong>"Postmark"</strong> for Postmark App</li>
+<li>
+<strong>"SendGrid"</strong> for SendGrid</li>
+<li>
+<strong>"SES"</strong> for Amazon SES</li>
+<li>
+<strong>"Yahoo"</strong> for Yahoo Mail</li>
+<li>
+<strong>"Zoho"</strong> for Zoho Mail</li>
+</ul><p>Predefined service data covers <code>host</code>, <code>port</code> and secure connection settings, 
+any other parameters (ie. <code>auth</code>) need to be set separately.</p>
+
+<h2>E-mail message fields</h2>
+
+<p>The following are the possible fields of an e-mail message:</p>
+
+<ul>
+<li>
+<strong>from</strong> - The e-mail address of the sender. All e-mail addresses can be plain <code>sender@server.com</code> or formatted <code>Sender Name &lt;sender@server.com&gt;</code>
+</li>
+<li>
+<strong>to</strong> - Comma separated list of recipients e-mail addresses that will appear on the <code>To:</code> field</li>
+<li>
+<strong>cc</strong> - Comma separated list of recipients e-mail addresses that will appear on the <code>Cc:</code> field</li>
+<li>
+<strong>bcc</strong> - Comma separated list of recipients e-mail addresses that will appear on the <code>Bcc:</code> field</li>
+<li>
+<strong>replyTo</strong> - An e-mail address that will appear on the <code>Reply-To:</code> field</li>
+<li>
+<strong>subject</strong> - The subject of the e-mail</li>
+<li>
+<strong>text</strong> - The plaintext version of the message</li>
+<li>
+<strong>html</strong> - The HTML version of the message</li>
+<li>
+<strong>generateTextFromHTML</strong> - if set to true uses HTML to generate plain text body part from the HTML if the text is not defined</li>
+<li>
+<strong>headers</strong> - An object of additional header fields <code>{"X-Key-Name": "key value"}</code> (NB! values as passed as is, you should do your own encoding to 7bit if needed)</li>
+<li>
+<strong>attachments</strong> - An array of attachment objects.</li>
+<li>
+<strong>envelope</strong> - optional SMTP envelope, if auto generated envelope is not suitable</li>
+<li>
+<strong>messageId</strong> - optional Message-Id value, random value will be generated if not set</li>
+</ul><p>All text fields (e-mail addresses, plaintext body, html body) use UTF-8 as the encoding.
+Attachments are streamed as binary.</p>
+
+<p>Example:</p>
+
+<pre><code>var transport = nodemailer.createTransport("Sendmail");
+
+var mailOptions = {
+    from: "me@tr.ee",
+    to: "me@tr.ee",
+    subject: "Hello world!",
+    text: "Plaintext body"
+}
+
+transport.sendMail(mailOptions);
+</code></pre>
+
+<h3>SendGrid support</h3>
+
+<p>Nodemailer supports SendGrid <a href="http://docs.sendgrid.com/documentation/api/smtp-api/">SMTP API</a> out of the box - you can
+use objects as header values and these are automatically JSONized (and mime encoded if needed).</p>
+
+<pre><code>var mailOptions = {
+    ...,
+    headers: {
+        'X-SMTPAPI': {
+            category : "newuser",
+            sub:{
+                "%name%": ["Žiguli Õllepruul"]
+            }
+        }
+    },
+    subject: "Hello, %name%"
+}
+</code></pre>
+
+<p>This also applies to any other service that expects a JSON string as a header value for specified key.</p>
+
+<h3>Generate Text from HTML</h3>
+
+<p>If <code>generateTextFromHTML</code> option is set to true, then HTML contents of the mail is automatically converted
+to plaintext format when plaintext content is empty or missing.</p>
+
+<p>For example</p>
+
+<pre><code>mailOptions = {
+    ...,
+    generateTextFromHTML: true,
+    html: '&lt;h1&gt;Hello world&lt;/h1&gt;&lt;p&gt;&lt;b&gt;How&lt;/b&gt; are you?',
+    // text: '' // no text part
+}
+</code></pre>
+
+<p>is automatically converted in the backround by Nodemailer to:</p>
+
+<pre><code>mailOptions = {
+    ...,
+    // source html:
+    html: '&lt;h1&gt;Hello world&lt;/h1&gt;&lt;p&gt;&lt;b&gt;How&lt;/b&gt; are you?',
+    // automatically generated plaintext message:
+    text: "Hello world\n"+
+          "===========\n"+
+          "\n"+
+          "**How** are you?"
+}
+</code></pre>
+
+<p>As you can see the output syntax for <code>generateTextFromHTML</code> looks similar to markdown, and that
+is exactly the case here - Nodemailer includes a simple HTML to markdown converter. But don't
+expect too much from it, it's not full featured or perfect, just some regexes here and there.</p>
+
+<h3>Attachment fields</h3>
+
+<p>Attahcment object consists of the following properties:</p>
+
+<ul>
+<li>
+<strong>fileName</strong> - filename to be reported as the name of the attached file, use of unicode is allowed (except when using Amazon SES which doesn't like it)</li>
+<li>
+<strong>cid</strong> - optional content id for using inline images in HTML message source</li>
+<li>
+<strong>contents</strong> - String or a Buffer contents for the attachment</li>
+<li>
+<strong>filePath</strong> - path to a file if you want to stream the file instead of including it (better for larger attachments)</li>
+<li>
+<strong>streamSource</strong> - Stream object for arbitrary binary streams if you want to stream the contents (needs to support <em>pause</em>/<em>resume</em>)</li>
+<li>
+<strong>contentType</strong> - optional content type for the attachment, if not set will be derived from the <code>fileName</code> property</li>
+<li>
+<strong>contentDisposition</strong> - optional content disposition type for the attachment, defaults to "attachment" </li>
+</ul><p>One of <code>contents</code>, <code>filePath</code> or <code>streamSource</code> must be specified, if none is 
+present, the attachment will be discarded. Other fields are optional.</p>
+
+<p>Attachments can be added as many as you want.</p>
+
+<pre><code>var mailOptions = {
+    ...
+    attachments: [
+        {
+            fileName: "text1.txt",
+            contents: "hello world!
+        },
+        {
+            fileName: "text2.txt",
+            contents: new Buffer("hello world!,"utf-8")
+        },
+        {
+            fileName: "text3.txt",
+            filePath: "/path/to/file.txt" // stream this file
+        },
+        {
+            fileName: "text4.txt",
+            streamSource: fs.createReadStream("file.txt")
+        },
+        {
+            fileName: "text",
+            contents: "hello world!,
+            contentType: "text/plain"
+        }
+    ]
+}
+</code></pre>
+
+<h3>Address Formatting</h3>
+
+<p>All the e-mail addresses can be plain e-mail address</p>
+
+<pre><code>username@example.com
+</code></pre>
+
+<p>or with formatted name (includes unicode support)</p>
+
+<pre><code>"Ноде Майлер" &lt;username@example.com&gt;
+</code></pre>
+
+<p>To, Cc and Bcc fields accept comma separated list of e-mails. Formatting can be mixed.</p>
+
+<pre><code>username@example.com, "Ноде Майлер" &lt;username@example.com&gt;, "Name, User" &lt;username@example.com&gt;
+</code></pre>
+
+<p>You can even use unicode domain and user names, these are automatically converted
+to the supported form</p>
+
+<pre><code>"Uncode Domain" &lt;info@müriaad-polüteism.info&gt;
+</code></pre>
+
+<h3>SMTP envelope</h3>
+
+<p>SMTP envelope is usually auto generated from <code>from</code>, <code>to</code>, <code>cc</code> and <code>bcc</code> fields but
+if for some reason you want to specify it yourself, you can do it with <code>envelope</code> property.</p>
+
+<p><code>envelope</code> is an object with the following params: <code>from</code>, <code>to</code>, <code>cc</code> and <code>bcc</code> just like
+with regular mail options. You can also use the regular address format.</p>
+
+<pre><code>mailOptions = {
+    ...,
+    from: "mailer@node.ee",
+    to: "daemon@node.ee",
+    envelope: {
+        from: "Daemon &lt;deamon@node.ee&gt;",
+        to: "mailer@node.ee, Mailer &lt;mailer2@node.ee&gt;"
+    }
+}
+</code></pre>
+
+<h3>Using Embedded Images</h3>
+
+<p>Attachments can be used as embedded images in the HTML body. To use this
+feature, you need to set additional property of the attachment - <code>cid</code> (unique
+identifier of the file) which is a reference to the attachment file. The same
+<code>cid</code> value must be used as the image URL in HTML (using <code>cid:</code> as the URL
+protocol, see example below).</p>
+
+<p><strong>NB!</strong> the cid value should be as unique as possible!</p>
+
+<pre><code>var mailOptions = {
+    ...
+    html: "Embedded image: &lt;img src='cid:unique@node.ee' /&gt;",
+    attachments: [{
+        filename: "image.png",
+        filePath: "/path/to/file",
+        cid: "unique@node.ee" //same cid value as in the html img src
+    }]
+}
+</code></pre>
+
+<h2>Return callback</h2>
+
+<p>Return callback gets two parameters</p>
+
+<ul>
+<li>
+<strong>error</strong> - an error object if the message failed</li>
+<li>
+<strong>responseStatus</strong> - an object with some information about the status on success</li>
+</ul><p>Example:</p>
+
+<pre><code>nodemailer.sendMail(mailOptions, function(error, responseStatus){
+    if(!error){
+        console.log(responseStatus.message); // response from the server
+    }
+});
+</code></pre>
+
+<h2>Tests</h2>
+
+<p>Run the tests with npm in Nodemailer's directory</p>
+
+<pre><code>npm test
+</code></pre>
+
+<p>There aren't currently many tests for Nodemailer but there are a lot of tests
+in the modules that are used to generate the raw e-mail body and to use the 
+SMTP client connection.</p>
+
+<h2>Tweaking</h2>
+
+<p>Nodemailer in itself is actually more like a wrapper for my other modules
+<a href="https://github.com/andris9/mailcomposer">mailcomposer</a> for composing the raw message stream
+and <a href="https://github.com/andris9/simplesmtp">simplesmtp</a> for delivering it, by providing an 
+unified API. If there's some problems with particular parts of the 
+message composing/sending process you should look at the  appropriate module.</p>
+
+<h2>License</h2>
+
+<p><strong>Nodemailer</strong> is licensed under <a href="https://github.com/andris9/Nodemailer/blob/master/LICENSE">MIT license</a>. Basically you can do whatever you want to with it.</p>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/andris9">andris9</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
